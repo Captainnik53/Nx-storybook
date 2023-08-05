@@ -1,0 +1,88 @@
+{
+  "name": "ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/src",
+  "prefix": "storybook-demo",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/ui/ng-package.json",
+        "styles": [
+            "../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+            "apps/demo-app/src/styles.scss"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/ui/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/ui/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/ui/**/*.ts",
+          "libs/ui/**/*.html",
+          "libs/ui/package.json"
+        ]
+      }
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "libs/ui/.storybook",
+        "browserTarget": "ui:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/ui",
+        "configDir": "libs/ui/.storybook",
+        "browserTarget": "ui:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "test-storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test-storybook -c libs/ui/.storybook --url=http://localhost:4400"
+      }
+    },
+    "static-storybook": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "ui:build-storybook",
+        "staticFilePath": "dist/storybook/ui"
+      },
+      "configurations": {
+        "ci": {
+          "buildTarget": "ui:build-storybook:ci"
+        }
+      }
+    }
+  }
+}
